@@ -151,7 +151,7 @@ Example response:
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Component     | Technology |
 | ------------- | ---------- |
