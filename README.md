@@ -45,7 +45,7 @@ UI (Streamlit + Graph Visualization)
 
 ---
 
-## 📊 Data Model
+## Data Model
 
 The dataset is transformed into a graph consisting of:
 
@@ -90,27 +90,27 @@ The dataset is transformed into a graph consisting of:
 
 ## Advanced Features
 
-### 🔥 Auto-Correction Layer (Self-Healing System)
+### 1️⃣ Auto-Correction Layer (Self-Healing System)
 
 * Detects Cypher query errors
 * Automatically fixes queries using LLM
 * Retries execution without user intervention
 
-### 🔍 Hybrid Query Handling
+### 2️⃣ Hybrid Query Handling
 
 * Graph queries → Visual graph output
 * Analytical queries → Table format
 
-### 🧾 Schema-Aware Prompting
+### 3️⃣ Schema-Aware Prompting
 
 * Dynamically fetches schema from Neo4j
 * Improves accuracy of generated queries
 
-### 💬 Chat Memory
+### 4️⃣ Chat Memory
 
 * Maintains context across multiple queries
 
-### 📊 KPI Dashboard
+### 4️⃣ KPI Dashboard
 
 * Displays key metrics like:
 
