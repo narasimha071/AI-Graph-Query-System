@@ -14,7 +14,7 @@ load_dotenv()
 # 🔹 Neo4j
 driver = GraphDatabase.driver(
     "bolt://localhost:7687",
-    auth=("neo4j", "Raju@2003")
+    auth=("neo4j", "") #Create your Password
 )
 
 # 🔹 Groq
@@ -24,8 +24,8 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # LOGGING
 # =========================================================
 def log_query(user_input, cypher):
-    print("\n🔍 USER:", user_input)
-    print("⚡ CYPHER:", cypher)
+    print("\n USER:", user_input)
+    print(" CYPHER:", cypher)
 
 
 # =========================================================
@@ -35,7 +35,7 @@ def validate_and_optimize_query(query):
     forbidden = ["DELETE", "DETACH", "CREATE", "MERGE", "DROP"]
 
     if any(word in query.upper() for word in forbidden):
-        raise ValueError("❌ Unsafe query blocked")
+        raise ValueError("Unsafe query blocked")
 
     query = query.strip().rstrip(";")
 
