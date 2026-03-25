@@ -214,7 +214,7 @@ AI-Graph-Query-System/
 
 ---
 
-## 🚀 Future Enhancements
+## Future Enhancements
 
 * Query confidence scoring
 * Advanced analytics dashboard
@@ -223,7 +223,7 @@ AI-Graph-Query-System/
 
 ---
 
-## 🙌 Conclusion
+## Conclusion
 
 This project demonstrates how **Graph Databases + LLMs** can be combined to build an intelligent, explainable, and interactive data exploration system.
 
