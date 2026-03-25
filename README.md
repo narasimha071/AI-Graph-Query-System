@@ -203,14 +203,6 @@ ai-graph-query-system/
 ├── screenshots/
 ```
 
----
-
-## Screenshots
-
-(Add screenshots of your UI here)
-
----
-
 ## Evaluation Highlights
 
 * Clean and modular architecture
