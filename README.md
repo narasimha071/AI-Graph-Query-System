@@ -110,7 +110,7 @@ The dataset is transformed into a graph consisting of:
 
 * Maintains context across multiple queries
 
-### 4️⃣ KPI Dashboard
+### 5️⃣ KPI Dashboard
 
 * Displays key metrics like:
 
