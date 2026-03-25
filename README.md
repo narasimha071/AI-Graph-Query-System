@@ -194,7 +194,7 @@ GROQ_API_KEY=your_api_key_here
 ## Project Structure
 
 ```
-ai-graph-query-system/
+AI-Graph-Query-System/
 │
 ├── app.py
 ├── README.md
