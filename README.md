@@ -166,8 +166,8 @@ Example response:
 ## Installation
 
 ```bash
-git clone https://github.com/your-username/ai-graph-query-system.git
-cd ai-graph-query-system
+git clone https://github.com/your-username/AI-Graph-Query-System.git
+cd AI-Graph-Query-System
 pip install -r requirements.txt
 ```
 
