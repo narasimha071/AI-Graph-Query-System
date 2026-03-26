@@ -53,7 +53,7 @@ Customer → Sales Order → Delivery → Invoice → Payment
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 User Query (Natural Language)
@@ -96,14 +96,14 @@ UI (Streamlit + PyVis Visualization)
 
 ## Key Features
 
-* 💬 Natural language → Cypher conversion
-* 🔄 Auto query correction (self-healing system)
-* 📊 Hybrid output (Graph + Table)
-* 🧠 AI-generated answers grounded in data
-* 🔍 Schema-aware prompting
-* 💬 Chat memory (context retention)
-* 🔐 Domain guardrails
-* 📈 KPI metrics
+* Natural language → Cypher conversion
+* Auto query correction (self-healing system)
+* Hybrid output (Graph + Table)
+* AI-generated answers grounded in data
+* Schema-aware prompting
+* Chat memory (context retention)
+* Domain guardrails
+* KPI metrics
 
 ---
 
@@ -152,7 +152,7 @@ UI (Streamlit + PyVis Visualization)
 The system restricts queries strictly to dataset-related topics.
 
 Example:
-❌ "Tell me about cricket"
+❌"Tell me about cricket"
 ✔ Returns:
 
 > This system is designed to answer questions related to the dataset only.
