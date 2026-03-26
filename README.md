@@ -295,4 +295,3 @@ This project demonstrates how **Graph Databases + LLMs** can be combined to buil
 
 It enables users to seamlessly explore complex business relationships using simple natural language queries.
 
----
