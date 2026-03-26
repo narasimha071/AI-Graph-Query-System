@@ -49,14 +49,14 @@ def run_batch_query(query, data, batch_size=500):
 # 🔹 Load Graph Efficiently
 def load_graph():
 
-    # ✅ Customers
+    # Customers
     run_batch_query("""
         UNWIND $batch AS row
         MERGE (c:Customer {id: row.businessPartner})
         SET c.name = row.businessPartnerFullName
     """, customers)
 
-    # ✅ Orders
+    # Orders
     run_batch_query("""
         UNWIND $batch AS row
         MERGE (o:SalesOrder {id: row.salesOrder})
@@ -67,7 +67,7 @@ def load_graph():
         MERGE (c)-[:PLACED]->(o)
     """, orders)
 
-    # ✅ Products
+    # Products
     run_batch_query("""
         UNWIND $batch AS row
         MERGE (p:Product {id: row.material})
@@ -77,7 +77,7 @@ def load_graph():
         MERGE (o)-[:HAS_PRODUCT]->(p)
     """, items)
 
-    # ✅ Deliveries
+    # Deliveries
     run_batch_query("""
         UNWIND $batch AS row
         WITH row
@@ -91,7 +91,7 @@ def load_graph():
         MERGE (o)-[:DELIVERED_AS]->(d)
     """, delivery_items)
 
-    # ✅ Invoices
+    # Invoices
     run_batch_query("""
         UNWIND $batch AS row
         WITH row
@@ -104,7 +104,7 @@ def load_graph():
         MERGE (d)-[:BILLED_AS]->(i)
     """, billing_items)
 
-    #  ✅ Payments (FIXED)
+    #  Payments (FIXED)
     run_batch_query("""
         UNWIND $batch AS row
         WITH row
