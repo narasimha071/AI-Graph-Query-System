@@ -14,7 +14,7 @@ load_dotenv()
 # 🔹 Neo4j
 driver = GraphDatabase.driver(
     "bolt://localhost:7687",
-    auth=("neo4j", "Raju@2003")  #Create your password
+    auth=("neo4j", "")  #Create your password
 )
 
 # 🔹 Groq
