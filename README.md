@@ -279,7 +279,6 @@ These demonstrate:
 * Clean and modular architecture
 
 ---
-
 ## Future Enhancements
 
 * Semantic search
@@ -287,8 +286,7 @@ These demonstrate:
 * AWS deployment
 * Advanced dashboards
 
---
-
+---
 ## Conclusion
 
 This project demonstrates how **Graph Databases + LLMs** can be combined to build an intelligent, explainable, and interactive data exploration system.
