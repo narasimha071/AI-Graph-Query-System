@@ -4,24 +4,52 @@
 
 In real-world business systems, data is often fragmented across multiple tables such as orders, deliveries, invoices, and payments. This makes it difficult to trace relationships and understand end-to-end workflows.
 
-This project solves that problem by converting structured business data into a **graph-based model** and enabling users to interact with it using **natural language queries**.
+This project addresses this challenge by transforming structured business data into a **graph-based model** and enabling users to interact with it using **natural language queries**.
 
-The system integrates a **Graph Database (Neo4j)** with a **Large Language Model (LLM)** to dynamically generate queries and return **data-backed answers**, along with visual insights.
+The system integrates a **Graph Database (Neo4j)** with a **Large Language Model (LLM)** to dynamically generate Cypher queries, execute them, and return **data-backed insights** along with visual representations.
 
 ---
 
-## Key Features
+## Problem Statement
 
-* 🔗 Graph-based data modeling using Neo4j
-* 💬 Natural language query interface
-* 🔄 Automatic conversion of queries (NL → Cypher)
-* 📊 Hybrid output (Graph visualization + Table results)
-* 🧠 AI-generated answers grounded in data
-* 🔁 Auto-correction layer for fixing query errors
-* 🧾 Schema-aware query generation
-* 💬 Multi-turn conversation (chat memory)
-* 🔐 Guardrails for domain-restricted queries
-* 📈 KPI metrics and tabular insights
+* Business data requires complex joins across multiple tables
+* Non-technical users cannot write SQL/Cypher queries
+* Tracing end-to-end workflows is difficult
+
+---
+
+## Solution
+
+This system enables:
+
+* Natural language querying
+* Automatic Cypher generation
+* Graph-based visualization
+* AI-generated business insights
+* End-to-end flow tracing
+
+---
+
+## Dataset
+
+The dataset represents an **Order-to-Cash (O2C) lifecycle**:
+
+Customer → Sales Order → Delivery → Invoice → Payment
+
+### 🔹 Entities:
+
+* Customers
+* Sales Orders
+* Products
+* Deliveries
+* Invoices
+* Payments
+
+### 🔹 Purpose:
+
+* Understand business workflows
+* Detect incomplete transactions
+* Analyze relationships
 
 ---
 
@@ -32,22 +60,20 @@ User Query (Natural Language)
         ↓
 LLM (NL → Cypher Translation)
         ↓
-Validation + Optimization Layer
+Validation + Guardrails Layer
         ↓
 Neo4j Graph Database
         ↓
-Structured Data (Nodes / Table)
+Structured Data (Graph/Table)
         ↓
 LLM (Answer Generation)
         ↓
-UI (Streamlit + Graph Visualization)
+UI (Streamlit + PyVis Visualization)
 ```
 
 ---
 
 ## Data Model
-
-The dataset is transformed into a graph consisting of:
 
 ### 🔹 Nodes
 
@@ -68,76 +94,56 @@ The dataset is transformed into a graph consisting of:
 
 ---
 
-## Functional Requirements Implemented
+## Key Features
 
-### 1️⃣ Graph Construction
-
-* Data is modeled as nodes and relationships in Neo4j
-* Supports multi-entity business flows
-
-### 2️⃣ Graph Visualization
-
-* Interactive graph using PyVis
-* Displays entity connections and relationships
-
-### 3️⃣ Conversational Query Interface
-
-* Accepts natural language questions
-* Converts queries dynamically into Cypher
-* Executes queries and returns accurate results
+* 💬 Natural language → Cypher conversion
+* 🔄 Auto query correction (self-healing system)
+* 📊 Hybrid output (Graph + Table)
+* 🧠 AI-generated answers grounded in data
+* 🔍 Schema-aware prompting
+* 💬 Chat memory (context retention)
+* 🔐 Domain guardrails
+* 📈 KPI metrics
 
 ---
 
-## Advanced Features
+##  Advanced Features
 
-### 1️⃣ Auto-Correction Layer (Self-Healing System)
+### 1️⃣ Flow Tracing
 
-* Detects Cypher query errors
-* Automatically fixes queries using LLM
-* Retries execution without user intervention
+* Tracks complete lifecycle of a business entity
+* Example:
 
-### 2️⃣ Hybrid Query Handling
+  * Customer → Order → Delivery → Invoice
 
-* Graph queries → Visual graph output
-* Analytical queries → Table format
+### 2️⃣ Node Highlighting
 
-### 3️⃣ Schema-Aware Prompting
+* Relevant nodes are highlighted in graph
+* Improves interpretability
 
-* Dynamically fetches schema from Neo4j
-* Improves accuracy of generated queries
+### 3️⃣ Auto-Correction Layer
 
-### 4️⃣ Chat Memory
-
-* Maintains context across multiple queries
-
-### 5️⃣ KPI Dashboard
-
-* Displays key metrics like:
-
-  * Total nodes
-  * Total relationships
+* Detects and fixes Cypher query errors
+* Retries execution automatically
 
 ---
 
-## Example Queries
+##  Example Queries
 
-### 🔹 Analytical Queries
+### 🔹 Analytical
 
-* What is the total number of orders?
-* Which customer made the most payments?
-* What is the average number of products per order?
+* Which customer is most active?
+* What is total number of orders?
 
 ### 🔹 Graph Queries
 
-* Trace the lifecycle of order "740509"
-* Show all products in an order
-* Show full flow from customer to invoice
+* Trace order 740556
+* Show full lifecycle of a sales order
 
-### 🔹 Edge Case Queries
+### 🔹 Edge Cases
 
 * Show orders without delivery
 * Show customers with no payments
-* Identify incomplete transactions
 
 ---
 
@@ -145,48 +151,77 @@ The dataset is transformed into a graph consisting of:
 
 The system restricts queries strictly to dataset-related topics.
 
-Example response:
+Example:
+❌ "Tell me about cricket"
+✔ Returns:
 
-> "This system is designed to answer questions related to the dataset only."
+> This system is designed to answer questions related to the dataset only.
 
 ---
 
-##  Tech Stack
+## ⚙️ Tech Stack
 
 | Component     | Technology |
 | ------------- | ---------- |
 | Frontend      | Streamlit  |
 | Backend       | Python     |
 | Database      | Neo4j      |
-| LLM           | Groq API   |
+| LLM API       | Groq       |
 | Visualization | PyVis      |
 
 ---
 
-## Installation
+## Setup Instructions
+
+### 1️⃣ Clone Repository
 
 ```bash
 git clone https://github.com/your-username/AI-Graph-Query-System.git
 cd AI-Graph-Query-System
-pip install -r requirements.txt
 ```
 
 ---
 
-## Run the Application
+### 2️⃣ Install Dependencies
 
 ```bash
-streamlit run app.py
+pip install -r src/requirements.txt
 ```
 
 ---
 
-## Environment Variables
+### 3️⃣ Configure Environment
 
-Create a `.env` file in the root directory:
+Create `.env` file:
 
 ```
-GROQ_API_KEY=your_api_key_here
+GROQ_API_KEY=your_api_key
+```
+
+---
+
+### 4️⃣ Start Neo4j
+
+* Run Neo4j locally at:
+
+```
+bolt://localhost:7687
+```
+
+---
+
+### 5️⃣ Load Dataset
+
+```bash
+python src/neo4j_loader.py
+```
+
+---
+
+### 6️⃣ Run Application
+
+```bash
+streamlit run src/app.py
 ```
 
 ---
@@ -196,32 +231,62 @@ GROQ_API_KEY=your_api_key_here
 ```
 AI-Graph-Query-System/
 │
-├── app.py
-├── Neo4j_loader.py
-├── requirements.txt
-├── dataset/
+├── src/
+│   ├── app.py
+│   ├── Neo4j_loader.py
+│   ├── requirements.txt
+│
+├── sap-order-to-cash-dataset/
 ├── screenshots/
-```
+│
+├── sessions/
+│   ├── llm_prompt_logs.md
+│   ├── development_journey.md
+│
+├── README.md
+├── .gitignore
+
 ---
 
+## LLM Usage
+
+The LLM is used for:
+
+* Natural language → Cypher conversion
+* Query debugging (auto-fix)
+* AI answer generation
+
+---
+
+## AI Coding Sessions
+
+All AI interaction logs are included in `/sessions` folder.
+
+These demonstrate:
+
+* Prompt design
+* Debugging workflow
+* Iteration process
+
+---
 ## Evaluation Highlights
 
+* Strong graph modeling of business workflow
+* Effective LLM integration with schema awareness
+* Robust guardrails implementation
+* Advanced features like flow tracing & highlighting
 * Clean and modular architecture
-* Strong graph data modeling
-* Effective LLM integration and prompting
-* Robust error handling with auto-correction
-* Domain-specific guardrails
 
 ---
 
 ## Future Enhancements
 
-* Query confidence scoring
-* Advanced analytics dashboard
-* Graph clustering and community detection
-* Cloud deployment (AWS / Streamlit Cloud)
+* Semantic search
+* Graph clustering
+* AWS deployment
+* Advanced dashboards
 
----
+--
 
 ## Conclusion
 
