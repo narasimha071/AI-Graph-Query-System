@@ -1,5 +1,0 @@
-streamlit
-neo4j
-groq
-pyvis
-python-dotenv
