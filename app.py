@@ -4,9 +4,9 @@ from neo4j import GraphDatabase
 from groq import Groq
 import os
 import pandas as pd
-
 from pyvis.network import Network
 import streamlit.components.v1 as components
+import re
 
 # 🔹 Load ENV
 load_dotenv()
@@ -14,19 +14,36 @@ load_dotenv()
 # 🔹 Neo4j
 driver = GraphDatabase.driver(
     "bolt://localhost:7687",
-    auth=("neo4j", "") #Create your Password
+    auth=("neo4j", "Raju@2003")
 )
 
 # 🔹 Groq
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # =========================================================
+# FLOW TRACING (NEW)
+# =========================================================
+def detect_flow_query(user_input):
+    match = re.search(r"\b(\d{5,})\b", user_input)
+
+    if "trace" in user_input.lower() and match:
+        doc_id = match.group(1)
+
+        return f"""
+        MATCH (o:SalesOrder {{id: '{doc_id}'}})
+        OPTIONAL MATCH (o)-[:DELIVERED_AS]->(d)
+        OPTIONAL MATCH (d)-[:BILLED_AS]->(i)
+        OPTIONAL MATCH (c:Customer)-[:PLACED]->(o)
+        RETURN o,d,i,c
+        """
+    return None
+
+# =========================================================
 # LOGGING
 # =========================================================
 def log_query(user_input, cypher):
     print("\n USER:", user_input)
-    print(" CYPHER:", cypher)
-
+    print("CYPHER:", cypher)
 
 # =========================================================
 # VALIDATION + OPTIMIZATION
@@ -44,7 +61,6 @@ def validate_and_optimize_query(query):
 
     return query
 
-
 # =========================================================
 # SCHEMA
 # =========================================================
@@ -53,9 +69,8 @@ def get_schema():
         result = session.run("CALL db.schema.visualization()")
         return str([r.data() for r in result])
 
-
 # =========================================================
-# 🔹 NL → CYPHER
+# NL → CYPHER
 # =========================================================
 def nl_to_cypher(question):
     schema = get_schema()
@@ -71,11 +86,7 @@ def nl_to_cypher(question):
     - Always use property "id"
     - IDs are STRINGS
     - Use OPTIONAL MATCH where needed
-
-    IMPORTANT:
-    - Do NOT use semicolons (;)
-    - For graph queries → return nodes/relationships
-    - For analytical queries → return scalar values
+    - No semicolons
 
     Return ONLY Cypher query.
 
@@ -88,10 +99,7 @@ def nl_to_cypher(question):
     )
 
     query = response.choices[0].message.content.strip()
-    query = query.replace("```cypher", "").replace("```", "").strip()
-
-    return query
-
+    return query.replace("```", "").strip()
 
 # =========================================================
 # AUTO-CORRECTION
@@ -105,22 +113,11 @@ def fix_cypher_query(question, bad_query, error_msg):
     Graph Schema:
     {schema}
 
-    Question:
-    {question}
+    Question: {question}
+    Bad Query: {bad_query}
+    Error: {error_msg}
 
-    Bad Query:
-    {bad_query}
-
-    Error:
-    {error_msg}
-
-    Fix the query.
-
-    Rules:
-    - Fix aggregation issues
-    - Replace exists() with IS NOT NULL
-    - Remove semicolons
-    - Return ONLY valid Cypher query
+    Fix the query and return only Cypher.
     """
 
     response = client.chat.completions.create(
@@ -128,21 +125,16 @@ def fix_cypher_query(question, bad_query, error_msg):
         messages=[{"role": "user", "content": prompt}]
     )
 
-    fixed_query = response.choices[0].message.content.strip()
-    fixed_query = fixed_query.replace("```cypher", "").replace("```", "").strip()
-
-    return fixed_query
-
+    return response.choices[0].message.content.strip().replace("```", "")
 
 # =========================================================
-# 🔹 CHAT MEMORY
+# CHAT MEMORY
 # =========================================================
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-
 # =========================================================
-# 🔹 AI ANSWER
+# AI ANSWER
 # =========================================================
 def generate_answer(question, data):
     history = st.session_state.chat_history[-3:]
@@ -173,9 +165,8 @@ def generate_answer(question, data):
 
     return answer
 
-
 # =========================================================
-# 🔹 GRAPH CHECK
+# GRAPH CHECK
 # =========================================================
 def is_graph_data(records):
     for r in records:
@@ -184,21 +175,23 @@ def is_graph_data(records):
                 return True
     return False
 
-
 # =========================================================
-# 🔹 GRAPH STRUCTURE
+# GRAPH STRUCTURE + HIGHLIGHT (UPDATED)
 # =========================================================
 def structured_graph_output(records):
     nodes, edges = [], []
     seen = set()
+    highlight_ids = set()
 
     for record in records:
         for value in record.values():
 
-            if hasattr(value, "nodes") and hasattr(value, "relationships"):
+            if hasattr(value, "nodes"):
                 for node in value.nodes:
                     node_id = node.get("id")
                     label = list(node.labels)[0]
+
+                    highlight_ids.add(node_id)
 
                     if node_id not in seen:
                         nodes.append({"id": node_id, "type": label})
@@ -215,6 +208,8 @@ def structured_graph_output(records):
                 node_id = value.get("id")
                 label = list(value.labels)[0]
 
+                highlight_ids.add(node_id)
+
                 if node_id not in seen:
                     nodes.append({"id": node_id, "type": label})
                     seen.add(node_id)
@@ -226,40 +221,42 @@ def structured_graph_output(records):
                     "to": value.end_node.get("id")
                 })
 
-    return {"nodes": nodes, "edges": edges}
-
+    return {"nodes": nodes, "edges": edges, "highlight": highlight_ids}
 
 # =========================================================
-# 🔹 KPI
+# KPI
 # =========================================================
 def show_kpis(graph_data):
     col1, col2 = st.columns(2)
     col1.metric("Total Nodes", len(graph_data["nodes"]))
     col2.metric("Total Relationships", len(graph_data["edges"]))
 
-
 # =========================================================
-# 🔹 TABLE VIEW
+# TABLE VIEW
 # =========================================================
 def show_table(graph_data):
-    df_nodes = pd.DataFrame(graph_data["nodes"])
-    df_edges = pd.DataFrame(graph_data["edges"])
-
     st.subheader("Nodes")
-    st.dataframe(df_nodes)
+    st.dataframe(pd.DataFrame(graph_data["nodes"]))
 
     st.subheader("Relationships")
-    st.dataframe(df_edges)
-
+    st.dataframe(pd.DataFrame(graph_data["edges"]))
 
 # =========================================================
-# 🔹 GRAPH VISUALIZATION
+# GRAPH VISUALIZATION (WITH HIGHLIGHT)
 # =========================================================
 def visualize_graph(graph_data):
     net = Network(height="650px", width="100%", bgcolor="#0b0f19", font_color="white")
 
     for node in graph_data["nodes"]:
-        net.add_node(node["id"], label=node["id"])
+        if node["id"] in graph_data["highlight"]:
+            net.add_node(
+                node["id"],
+                label=node["id"],
+                color="red",
+                size=25
+            )
+        else:
+            net.add_node(node["id"], label=node["id"])
 
     for edge in graph_data["edges"]:
         net.add_edge(edge["from"], edge["to"], label=edge["type"])
@@ -269,27 +266,21 @@ def visualize_graph(graph_data):
     with open("graph.html", "r", encoding="utf-8") as f:
         components.html(f.read(), height=650)
 
-
 # =========================================================
-# 🔹 GUARDRAILS
+# GUARDRAILS
 # =========================================================
 def is_valid_query(user_input):
     allowed = [
-        "order", "orders",
-        "delivery", "deliveries",
-        "invoice", "invoices",
-        "payment", "payments",
-        "customer", "customers",
-        "product", "products"
+        "order", "delivery", "invoice", "payment",
+        "customer", "product"
     ]
     return any(k in user_input.lower() for k in allowed)
 
-
 # =========================================================
-# 🔹 UI
+# UI
 # =========================================================
 st.set_page_config(page_title="Graph Query System", layout="wide")
-st.title("Graph Query System(AI-Automated)")
+st.title("Graph Query System (AI-Automated)")
 
 user_input = st.text_input("Ask a business question")
 
@@ -299,11 +290,16 @@ if st.button("Ask"):
         st.warning("Enter a question")
 
     elif not is_valid_query(user_input):
-        st.error("This system is designed to answer questions related to the dataset only.")
+        st.error("This system is designed to answer dataset-related questions only.")
 
     else:
         try:
-            cypher_query = nl_to_cypher(user_input)
+            # FLOW FIRST
+            cypher_query = detect_flow_query(user_input)
+
+            if not cypher_query:
+                cypher_query = nl_to_cypher(user_input)
+
             cypher_query = validate_and_optimize_query(cypher_query)
 
             log_query(user_input, cypher_query)
@@ -325,8 +321,6 @@ if st.button("Ask"):
                     st.subheader("Fixed Cypher")
                     st.code(fixed_query)
 
-                    log_query("AUTO-FIX", fixed_query)
-
                     result = session.run(fixed_query)
                     records = list(result)
 
@@ -340,9 +334,8 @@ if st.button("Ask"):
                     st.subheader("Table Result")
                     st.dataframe(df)
 
-                    answer = generate_answer(user_input, df.to_dict())
                     st.subheader("AI Answer")
-                    st.write(answer)
+                    st.write(generate_answer(user_input, df.to_dict()))
 
                 else:
                     graph_data = structured_graph_output(records)
@@ -350,18 +343,11 @@ if st.button("Ask"):
                     st.subheader("KPIs")
                     show_kpis(graph_data)
 
-                    st.subheader("Clean JSON")
-                    st.json(graph_data)
-
-                    st.subheader("Table View")
-                    show_table(graph_data)
-
-                    answer = generate_answer(user_input, graph_data["nodes"][:20])
-                    st.subheader("AI Answer")
-                    st.write(answer)
-
                     st.subheader("Graph View")
                     visualize_graph(graph_data)
+
+                    st.subheader("AI Answer")
+                    st.write(generate_answer(user_input, graph_data["nodes"][:20]))
 
         except Exception as e:
             st.error(f"Error: {str(e)}")
